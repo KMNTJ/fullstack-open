@@ -20,6 +20,21 @@ const Positive = ({ total, good }) => {
   return <div>positive {(good / total) * 100} %</div>;
 };
 
+const Statistics = (props) => {
+  const { good, neutral, bad, total } = props.stats;
+  return (
+    <div>
+      <h2>Statistics</h2>
+      <Tally text="good" count={good}></Tally>
+      <Tally text="neutral" count={neutral}></Tally>
+      <Tally text="bad" count={bad}></Tally>
+      <Tally text="all" count={total}></Tally>
+      <Avarage total={total} good={good} bad={bad}></Avarage>
+      <Positive total={total} good={good}></Positive>
+    </div>
+  );
+};
+
 const App = () => {
   const [good, setGood] = useState(0);
   const [neutral, setNeutral] = useState(0);
@@ -45,13 +60,7 @@ const App = () => {
       <Button handleClick={handleGood} text="good"></Button>
       <Button handleClick={handleNeutral} text="neutral"></Button>
       <Button handleClick={handleBad} text="bad"></Button>
-      <h2>Statistics</h2>
-      <Tally text="good" count={good}></Tally>
-      <Tally text="neutral" count={neutral}></Tally>
-      <Tally text="bad" count={bad}></Tally>
-      <Tally text="all" count={total}></Tally>
-      <Avarage total={total} good={good} bad={bad}></Avarage>
-      <Positive total={total} good={good}></Positive>
+      <Statistics stats={{ good, neutral, bad, total }}></Statistics>
     </div>
   );
 };
