@@ -6,29 +6,34 @@ const Button = (props) => {
 
 const StatisticLine = ({ text, value }) => {
   return (
-    <div>
-      {text} {value} {text==="positive" ? "%" : null}
-    </div>
-  )
+    <tr>
+      <td>{text}</td>
+      <td>
+        {value} {text === "positive" ? "%" : null}
+      </td>
+    </tr>
+  );
 };
 
 const Statistics = (props) => {
   const { good, neutral, bad, total } = props.stats;
-  const avarage = ((good - bad) / total);
-  const positive = ((good / total) * 100);
+  const avarage = (good - bad) / total;
+  const positive = (good / total) * 100;
 
   return (
     <div>
       <h2>Statistics</h2>
       {total ? (
-        <div>
-          <StatisticLine value={good} text="good"></StatisticLine>
-          <StatisticLine value={neutral} text="neutral"></StatisticLine>
-          <StatisticLine value={bad} text="bad"></StatisticLine>
-          <StatisticLine value={total} text="all"></StatisticLine>
-          <StatisticLine value={avarage} text="avarage"></StatisticLine>
-          <StatisticLine value={positive} text="positive"></StatisticLine>
-        </div>
+        <table>
+          <tbody>
+            <StatisticLine value={good} text="good"></StatisticLine>
+            <StatisticLine value={neutral} text="neutral"></StatisticLine>
+            <StatisticLine value={bad} text="bad"></StatisticLine>
+            <StatisticLine value={total} text="all"></StatisticLine>
+            <StatisticLine value={avarage} text="avarage"></StatisticLine>
+            <StatisticLine value={positive} text="positive"></StatisticLine>
+          </tbody>
+        </table>
       ) : (
         <>No feedback given</>
       )}
