@@ -25,12 +25,18 @@ const Statistics = (props) => {
   return (
     <div>
       <h2>Statistics</h2>
-      <Tally text="good" count={good}></Tally>
-      <Tally text="neutral" count={neutral}></Tally>
-      <Tally text="bad" count={bad}></Tally>
-      <Tally text="all" count={total}></Tally>
-      <Avarage total={total} good={good} bad={bad}></Avarage>
-      <Positive total={total} good={good}></Positive>
+      {total ? (
+        <>
+          <Tally text="good" count={good}></Tally>
+          <Tally text="neutral" count={neutral}></Tally>
+          <Tally text="bad" count={bad}></Tally>
+          <Tally text="all" count={total}></Tally>
+          <Avarage total={total} good={good} bad={bad}></Avarage>
+          <Positive total={total} good={good}></Positive>
+        </>
+      ) : (
+        <>No feedback given</>
+      )}
     </div>
   );
 };
