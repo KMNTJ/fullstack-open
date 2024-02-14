@@ -1,10 +1,11 @@
 const Header = (props) => {
-  return <p>{props.name}</p>;
+  let courseName = props.course.name;
+  return <p>{courseName}</p>;
 };
 
 const Content = (props) => {
   let content = [];
-  props.parts.forEach((part) => {
+  props.course.parts.forEach((part) => {
     content.push(<Part part={part}></Part>);
   });
   return <>{content}</>;
@@ -14,7 +15,7 @@ const Part = (props) => {
   let part = props.part;
   return (
     <div>
-      <p>{part.partDescription}</p>
+      <p>{part.name}</p>
       <p>{part.excercises}</p>
     </div>
   );
@@ -22,34 +23,38 @@ const Part = (props) => {
 
 const Total = (props) => {
   let total = 0;
-  props.parts.forEach((part) => {
+  props.course.parts.forEach((part) => {
     total += part.excercises;
   });
   return <p>{`Number of exercises ${total}`}</p>;
 };
 
 const App = () => {
-  const course = "Half Stack application development";
-  const parts = [
-    {
-      partDescription: "Fundamentals of React",
-      excercises: 10,
-    },
-    {
-      partDescription: "Using props to pass data",
-      excercises: 7,
-    },
-    {
-      partDescription: "State of a component",
-      excercises: 14,
-    },
-  ];
+  const course = {
+
+
+    name: "Half Stack application development",
+    parts: [
+      {
+        name: "Fundamentals of React",
+        excercises: 10,
+      },
+      {
+        name: "Using props to pass data",
+        excercises: 7,
+      },
+      {
+        name: "State of a component",
+        excercises: 14,
+      },
+    ]
+  }
 
   return (
     <div>
-      <Header name={course}></Header>
-      <Content parts={parts}></Content>
-      <Total parts={parts}></Total>
+      <Header course={course}></Header>
+      <Content course={course}></Content>
+      <Total course={course}></Total>
     </div>
   );
 };
