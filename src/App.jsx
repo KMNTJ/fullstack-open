@@ -3,32 +3,6 @@ const Header = (props) => {
   return <h1>{courseName}</h1>;
 };
 
-// const Content = (props) => {
-//   let content = [];
-//   props.course.parts.forEach((part) => {
-//     content.push(<Part part={part}></Part>);
-//   });
-//   return <>{content}</>;
-// };
-
-// const Part = (props) => {
-//   let part = props.part;
-//   return (
-//     <div>
-//       <p>{part.name}</p>
-//       <p>{part.excercises}</p>
-//     </div>
-//   );
-// };
-
-// const Total = (props) => {
-//   let total = 0;
-//   props.course.parts.forEach((part) => {
-//     total += part.excercises;
-//   });
-//   return <p>{`Number of exercises ${total}`}</p>;
-// };
-
 const Part = ({ part }) => {
   return (
     <li>
@@ -50,6 +24,14 @@ const Course = ({ course }) => {
   );
 };
 
+const Total = ({ course }) => {
+  let total = 0;
+  course.parts.forEach((x) => {
+    total = total + x.excercises;
+  });
+  return <b>total of {total} excercises</b>;
+};
+
 const App = () => {
   const course = {
     name: "Half Stack application development",
@@ -69,18 +51,20 @@ const App = () => {
         name: "State of a component",
         excercises: 14,
       },
+      {
+        id: 4,
+        name: "Redux",
+        excercises: 11,
+      },
     ],
   };
 
   return (
     <div>
       <Course course={course}></Course>
+      <Total course={course}></Total>
     </div>
   );
 };
-
-// <Header course={course}></Header>
-// <Content course={course}></Content>
-// <Total course={course}></Total>
 
 export default App;
