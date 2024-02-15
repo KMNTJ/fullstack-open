@@ -25,11 +25,11 @@ const Course = ({ course }) => {
 };
 
 const Total = ({ course }) => {
-  let total = 0;
-  course.parts.forEach((x) => {
-    total = total + x.excercises;
-  });
-  return <b>total of {total} excercises</b>;
+  const excercises = course.parts.reduce((total, part) => {
+    total += part.excercises;
+    return total;
+  }, 0 );
+  return <b>total of {excercises} excercises</b>;
 };
 
 const App = () => {
