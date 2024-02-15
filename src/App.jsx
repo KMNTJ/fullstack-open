@@ -8,8 +8,28 @@ const VoteCount = ({ count }) => {
   return <div>has {count} votes</div>;
 };
 
+const DaysAnecdote = ({ anecdote }) => {
+  return (
+    <div>
+      <h2>Anecdote of the day</h2>
+      <div>{anecdote}</div>
+    </div>
+  );
+};
+
+const MostVoted = ({ anecdote, voteCount }) => {
+  return (
+    <>
+      <h2>Anecdote with most votes</h2>
+      <div>{anecdote}</div>
+      <VoteCount count={voteCount}></VoteCount>
+    </>
+  );
+};
+
 const App = () => {
-  const [selected, setSelected] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [mostVotedIndex, setMostVotedIndex] = useState(0);
 
   const anecdotes = [
     "If it hurts, do it more often.",
@@ -22,30 +42,35 @@ const App = () => {
     "The only way to go fast, is to go well.",
   ];
 
-  const [points, setPoints] = useState(new Array(anecdotes.length).fill(0));
+  const [pointsArray, setPointsArray] = useState(
+    new Array(anecdotes.length).fill(0)
+  );
 
   const handleSetRandom = () => {
     const random = Math.floor(Math.random() * anecdotes.length);
-    setSelected(random);
+    setSelectedIndex(random);
   };
 
   const handleVote = () => {
-    console.log("points", points)
-    const copy = [...points];
-    console.log("copy", copy)
-    console.log("selected", selected)
-    console.log("copy selected", copy[selected])
-    copy[selected] = copy[selected] + 1;
-    console.log("copy selected after", copy[selected])
-    setPoints(copy);
+    const copyArray = [...pointsArray];
+    copyArray[selectedIndex] = copyArray[selectedIndex] + 1;
+    setPointsArray(copyArray);
+
+    const maxPoints = Math.max(...copyArray);
+    const newMostVotedIndex = copyArray.indexOf(maxPoints);
+    setMostVotedIndex(newMostVotedIndex);
   };
 
   return (
     <div>
-      <div>{anecdotes[selected]}</div>
-      <VoteCount count={points[selected]}></VoteCount>
+      <DaysAnecdote anecdote={anecdotes[selectedIndex]}></DaysAnecdote>
+      <VoteCount count={pointsArray[selectedIndex]}></VoteCount>
       <Vote handleVote={handleVote}></Vote>
       <button onClick={handleSetRandom}>New anecdote</button>
+      <MostVoted
+        anecdote={anecdotes[mostVotedIndex]}
+        voteCount={pointsArray[mostVotedIndex]}
+      ></MostVoted>
     </div>
   );
 };
