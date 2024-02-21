@@ -36,10 +36,10 @@ const CountriesList = ({ countries, handleShowCountry }) => {
 const CountryInfo = ({ country }) => {
   return (
     <div>
-      <h2>{country.name.common}</h2>
+      <h1>{country.name.common}</h1>
       <div>capital {country.capital[0]}</div>
       <div>area {country.area}</div>
-      <b>languages:</b>
+      <h3>languages:</h3>
       <ul>
         {Object.values(country.languages).map((l) => (
           <li key={l}>{l}</li>
@@ -47,6 +47,30 @@ const CountryInfo = ({ country }) => {
       </ul>
       <img src={`${country.flags.png}`}></img>
     </div>
+  );
+};
+
+const WeatherInfo = (props) => {
+  const weatherIconBaseUrl = "https://openweathermap.org/img/wn/";
+  if (props.capital !== undefined) {
+    console.log("capitalllll", props.capital);
+  }
+  return (
+    <>
+      {props.weatherData?.main ? (
+        <div>
+          <h2>{`Weather in ${props.weatherData.name}`}</h2>
+          <div>{`temperature ${props.weatherData.main.temp} Celsius`}</div>
+          <img
+            src={`${weatherIconBaseUrl}${props.weatherData.weather[0].icon}@2x.png`}
+            alt=""
+          />
+          <div>{`wind ${props.weatherData.wind.speed} m/s`}</div>
+        </div>
+      ) : (
+        <></>
+      )}
+    </>
   );
 };
 
@@ -91,8 +115,8 @@ const App = () => {
   const [countries, setCountries] = useState([]);
   const [filteredCountries, setFilteredCountries] = useState([]);
   const [useFiltered, setUseFiltered] = useState(false);
-
-  weatherService.foo2().then((r) => console.log("wd", r));
+  const [capitalWeatherData, setCapitalWeatherData] = useState([]);
+  const [capital, setCapital] = useState([]);
 
   useEffect(() => {
     countryService.getAll().then((countryData) => {
@@ -114,6 +138,24 @@ const App = () => {
     setFilteredCountries(filteredCountries);
   };
 
+  useEffect(() => {
+    if (capital[0] !== undefined) {
+      weatherService
+        .getWeatherByCoordinates(capital[0].lat, capital[0].lon)
+        .then((r) => setCapitalWeatherData(r));
+    }
+  }, [capital]);
+
+  useEffect(() => {
+    if (filteredCountries.length === 1) {
+      const country = filteredCountries[0];
+      const stateCode = "";
+      weatherService
+        .getCityInformation(country.cca2, country.capital[0], stateCode)
+        .then((r) => setCapital(r));
+    }
+  }, [filteredCountries]);
+
   const handleShowCountry = (c) => {
     setFilteredCountries([c]);
   };
@@ -122,7 +164,13 @@ const App = () => {
     <div>
       <Filter handleChange={handleFilterChange}></Filter>
       {filteredCountries.length === 1 ? (
-        <CountryInfo country={filteredCountries[0]}></CountryInfo>
+        <div>
+          <CountryInfo country={filteredCountries[0]}></CountryInfo>
+          <WeatherInfo
+            weatherData={capitalWeatherData}
+            capital={capital}
+          ></WeatherInfo>
+        </div>
       ) : (
         <Countries
           useFiltered={useFiltered}
