@@ -52,9 +52,6 @@ const CountryInfo = ({ country }) => {
 
 const WeatherInfo = (props) => {
   const weatherIconBaseUrl = "https://openweathermap.org/img/wn/";
-  if (props.capital !== undefined) {
-    console.log("capitalllll", props.capital);
-  }
   return (
     <>
       {props.weatherData?.main ? (
@@ -118,12 +115,56 @@ const App = () => {
   const [capitalWeatherData, setCapitalWeatherData] = useState([]);
   const [capital, setCapital] = useState([]);
 
+  // Kun componentti alustetaan
+  // Pohjustetaan maalista ja filtteöity maalista kaikilla mailla
   useEffect(() => {
     countryService.getAll().then((countryData) => {
       setCountries(countryData);
       setFilteredCountries(countryData);
     });
   }, []);
+
+  // Kun filtteröidyt maat muuttuu
+  // Filtterin rajoittaessa yhteen maahan asetetaan pääkaupunkitiedoksi maan pääkaupunki
+  useEffect(() => {
+    if (filteredCountries.length === 1) {
+      const country = filteredCountries[0];
+      weatherService
+        .getCityInformation2(country.capital[0])
+        .then((r) => {
+          if (r.length === 1) {
+            setCapital(r);
+          } else {
+            setCapital([]);
+          }
+        })
+        .catch((error) => {
+          console.error(
+            "An error occurred while fetching city information:",
+            error
+          );
+        });
+    }
+  }, [filteredCountries]);
+
+  // Kun seurattava pääkaupunki muuttuu
+  // Haetaan koordinaattien perusteella pääkaupungin kohdalla vallitseva sää
+  // ja asetetaan se pääkaupungin säätilaksi
+  useEffect(() => {
+    if (capital[0] !== undefined && capital.lenght !== 0) {
+      weatherService
+        .getWeatherByCoordinates(capital[0].lat, capital[0].lon)
+        .then((r) => {
+          if (r.length !== 0) {
+            setCapitalWeatherData(r);
+          } else {
+            setCapitalWeatherData([]);
+          }
+        });
+    } else {
+      setCapitalWeatherData([]);
+    }
+  }, [capital]);
 
   const filterCountries = (filter) => {
     return countries.filter(
@@ -137,24 +178,6 @@ const App = () => {
     const filteredCountries = filterCountries(updatedFilter);
     setFilteredCountries(filteredCountries);
   };
-
-  useEffect(() => {
-    if (capital[0] !== undefined) {
-      weatherService
-        .getWeatherByCoordinates(capital[0].lat, capital[0].lon)
-        .then((r) => setCapitalWeatherData(r));
-    }
-  }, [capital]);
-
-  useEffect(() => {
-    if (filteredCountries.length === 1) {
-      const country = filteredCountries[0];
-      const stateCode = "";
-      weatherService
-        .getCityInformation(country.cca2, country.capital[0], stateCode)
-        .then((r) => setCapital(r));
-    }
-  }, [filteredCountries]);
 
   const handleShowCountry = (c) => {
     setFilteredCountries([c]);
