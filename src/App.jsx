@@ -1,11 +1,18 @@
 import { useState, useEffect } from "react";
 import myApi from "./api";
 
-const Numbers = ({ persons }) => {
+const DeleteRecord = ({ deletionHandler, id }) => {
+  return <button onClick={deletionHandler(id)}>delete</button>;
+};
+
+const Numbers = ({ persons, deletionHandler }) => {
   return (
     <div>
       {persons.map((person) => (
-        <PersonNumber key={person.name} person={person}></PersonNumber>
+        <>
+          <PersonNumber key={person.name} person={person}></PersonNumber>
+          <DeleteRecord key={`${person.name}-deletor`} id={person.id} eletionHandler={deletionHandler}></DeleteRecord>
+        </>
       ))}
     </div>
   );
@@ -57,12 +64,11 @@ const App = () => {
   const [currentFilter, setCurrentFilter] = useState("");
 
   useEffect(() => {
-    myApi.getAll()
-    .then(persons => {
-      setPersons(persons)
-      setShownPersons(persons)
-    })
-  }, [])
+    myApi.getAll().then((persons) => {
+      setPersons(persons);
+      setShownPersons(persons);
+    });
+  }, []);
 
   const addPerson = (event) => {
     event.preventDefault();
@@ -71,14 +77,13 @@ const App = () => {
       return;
     }
     const newPerson = { name: newName, number: newNumber };
-    myApi.create(newPerson)
-    .then(person => {
-      const newPersons = persons.concat([person])
-      setPersons(newPersons)
+    myApi.create(newPerson).then((person) => {
+      const newPersons = persons.concat([person]);
+      setPersons(newPersons);
       setShownPersons(filterPersons(newPersons, currentFilter));
       setNewName("");
       setNewNumber("");
-    })
+    });
   };
 
   const nameChange = (event) => {
@@ -101,6 +106,10 @@ const App = () => {
     setShownPersons(filterPersons(persons, newCurrentFilter));
   };
 
+  const deletionHandler = (id) => {
+    myApi.deleteById(id).then(response => console.log(response))
+  }
+
   return (
     <div>
       <h2>Phonebook</h2>
@@ -114,7 +123,7 @@ const App = () => {
         handleNumberChange={numberChange}
       ></PersonForm>
       <h3>Numbers</h3>
-      <Numbers persons={shownPersons}></Numbers>
+      <Numbers persons={shownPersons} deletionHandler={() => deletionHandler}></Numbers>
     </div>
   );
 };
