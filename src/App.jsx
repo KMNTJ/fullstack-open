@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import myApi from "./api";
 
 const Numbers = ({ persons }) => {
   return (
@@ -57,12 +58,11 @@ const App = () => {
   const [currentFilter, setCurrentFilter] = useState("");
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
-        setShownPersons(response.data)
-      })
+    myApi.getAll()
+    .then(persons => {
+      setPersons(persons)
+      setShownPersons(persons)
+    })
   }, [])
 
   const addPerson = (event) => {
@@ -72,11 +72,14 @@ const App = () => {
       return;
     }
     const newPerson = { name: newName, number: newNumber };
-    const newPersons = persons.concat(newPerson);
-    setPersons(newPersons);
-    setShownPersons(filterPersons(newPersons, currentFilter));
-    setNewName("");
-    setNewNumber("");
+    myApi.create(newPerson)
+    .then(person => {
+      const newPersons = persons.concat([person])
+      setPersons(newPersons)
+      setShownPersons(filterPersons(newPersons, currentFilter));
+      setNewName("");
+      setNewNumber("");
+    })
   };
 
   const nameChange = (event) => {
