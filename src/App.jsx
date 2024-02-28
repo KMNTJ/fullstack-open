@@ -13,7 +13,7 @@ const Numbers = ({ persons, deletionHandler }) => {
   return (
     <div>
       {persons.map((person) => (
-        <div key={person.name} style={{ display: "flex"}}>
+        <div key={person.name} style={{ display: "flex" }}>
           <PersonNumber person={person}></PersonNumber>
           <DeleteRecord
             id={person.id}
@@ -79,18 +79,28 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault();
-    if (persons.find((x) => x.name === newName)) {
-      alert(`${newName} is already added to phonebook`);
-      return;
+    const existingPerson = persons.find((x) => x.name === newName);
+    if (existingPerson) {
+      const decision = confirm(
+        `${newName} is already added to phonebook, replace the old number with a new one?`
+      );
+      if (decision) {
+        const updatedInformation = { ...existingPerson, number: newNumber };
+        myApi
+          .update(existingPerson.id, updatedInformation)
+          .then((updatedPerson) => {
+            const newPersons = persons.map((personOnList) =>
+              updatedPerson.number === personOnList.number
+                ? personOnList
+                : { ...personOnList, number: newNumber }
+            );
+            setPersons(newPersons);
+            setShownPersons(filterPersons(newPersons, currentFilter));
+            setNewName("");
+            setNewNumber("");
+          });
+      }
     }
-    const newPerson = { name: newName, number: newNumber };
-    myApi.create(newPerson).then((person) => {
-      const newPersons = persons.concat([person]);
-      setPersons(newPersons);
-      setShownPersons(filterPersons(newPersons, currentFilter));
-      setNewName("");
-      setNewNumber("");
-    });
   };
 
   const nameChange = (event) => {
