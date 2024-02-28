@@ -2,17 +2,24 @@ import { useState, useEffect } from "react";
 import myApi from "./api";
 
 const DeleteRecord = ({ deletionHandler, id }) => {
-  return <button onClick={deletionHandler(id)}>delete</button>;
+  return (
+    <div style={{ margin: "6px" }}>
+      <button onClick={deletionHandler(id)}>delete</button>;
+    </div>
+  );
 };
 
 const Numbers = ({ persons, deletionHandler }) => {
   return (
     <div>
       {persons.map((person) => (
-        <>
-          <PersonNumber key={person.name} person={person}></PersonNumber>
-          <DeleteRecord key={`${person.name}-deletor`} id={person.id} eletionHandler={deletionHandler}></DeleteRecord>
-        </>
+        <div key={person.name} style={{ display: "flex"}}>
+          <PersonNumber person={person}></PersonNumber>
+          <DeleteRecord
+            id={person.id}
+            deletionHandler={deletionHandler}
+          ></DeleteRecord>
+        </div>
       ))}
     </div>
   );
@@ -106,9 +113,13 @@ const App = () => {
     setShownPersons(filterPersons(persons, newCurrentFilter));
   };
 
-  const deletionHandler = (id) => {
-    myApi.deleteById(id).then(response => console.log(response))
-  }
+  const deletionHandler = (id) => () => {
+    myApi.deleteById(id).then((person) => {
+      const newPersons = persons.filter((per) => per.id !== person.id);
+      setPersons(newPersons);
+      setShownPersons(filterPersons(newPersons, currentFilter));
+    });
+  };
 
   return (
     <div>
@@ -123,7 +134,10 @@ const App = () => {
         handleNumberChange={numberChange}
       ></PersonForm>
       <h3>Numbers</h3>
-      <Numbers persons={shownPersons} deletionHandler={() => deletionHandler}></Numbers>
+      <Numbers
+        persons={shownPersons}
+        deletionHandler={deletionHandler}
+      ></Numbers>
     </div>
   );
 };
