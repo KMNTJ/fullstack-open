@@ -77,6 +77,38 @@ const App = () => {
     });
   }, []);
 
+  const updatePerson = (existingPerson) => {
+    const updatedInformation = { ...existingPerson, number: newNumber };
+    console.log('newPersonInformationToUpdate', updatedInformation)
+    myApi
+      .update(existingPerson.id, updatedInformation)
+      .then((updatedPerson) => {
+        const newPersons = persons.map((personOnList) =>
+          updatedPerson.number === personOnList.number
+            ? personOnList
+            : { ...personOnList, number: newNumber }
+        );
+        finalizePersonsChange(newPersons);
+      });
+    };
+    
+    const finalizePersonsChange = (newPersons) => {
+      setPersons(newPersons);
+      setShownPersons(filterPersons(newPersons, currentFilter));
+      setNewName("");
+      setNewNumber("");
+    };
+    
+    const createPerson = () => {
+    const newPerson = { 'name': newName, 'number': newNumber}
+    myApi
+      .create(newPerson)
+      .then((addedPerson) => {
+        const newPersons = persons.concat(addedPerson)
+        finalizePersonsChange(newPersons);
+      });
+  };
+
   const addPerson = (event) => {
     event.preventDefault();
     const existingPerson = persons.find((x) => x.name === newName);
@@ -85,21 +117,10 @@ const App = () => {
         `${newName} is already added to phonebook, replace the old number with a new one?`
       );
       if (decision) {
-        const updatedInformation = { ...existingPerson, number: newNumber };
-        myApi
-          .update(existingPerson.id, updatedInformation)
-          .then((updatedPerson) => {
-            const newPersons = persons.map((personOnList) =>
-              updatedPerson.number === personOnList.number
-                ? personOnList
-                : { ...personOnList, number: newNumber }
-            );
-            setPersons(newPersons);
-            setShownPersons(filterPersons(newPersons, currentFilter));
-            setNewName("");
-            setNewNumber("");
-          });
+        updatePerson(existingPerson);
       }
+    } else {
+      createPerson();
     }
   };
 
@@ -124,8 +145,8 @@ const App = () => {
   };
 
   const deletionHandler = (id) => () => {
-    myApi.deleteById(id).then((person) => {
-      const newPersons = persons.filter((per) => per.id !== person.id);
+    myApi.deleteById(id).then(() => {
+      const newPersons = persons.filter((per) => per.id !== id);
       setPersons(newPersons);
       setShownPersons(filterPersons(newPersons, currentFilter));
     });
