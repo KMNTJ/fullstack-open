@@ -82,12 +82,13 @@ const App = () => {
     console.log('newPersonInformationToUpdate', updatedInformation)
     myApi
       .update(existingPerson.id, updatedInformation)
-      .then((updatedPerson) => {
+      .then(() => {
         const newPersons = persons.map((personOnList) =>
-          updatedPerson.number === personOnList.number
-            ? personOnList
-            : { ...personOnList, number: newNumber }
+          existingPerson.number === personOnList.number
+            ? { ...personOnList, number: newNumber }
+            : personOnList
         );
+        console.log("en:", existingPerson.number)
         finalizePersonsChange(newPersons);
       });
     };
