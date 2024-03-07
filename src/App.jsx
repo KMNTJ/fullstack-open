@@ -25,6 +25,22 @@ const Numbers = ({ persons, deletionHandler }) => {
   );
 };
 
+const ErrorDisplay = ({ errorMessage }) => {
+  return errorMessage ? (
+    <div
+      style={{
+        color: "red",
+        background: "lightgray",
+        border: "3px solid red",
+        borderRadius: "3px",
+        padding: "5px",
+      }}
+    >
+      {errorMessage}
+    </div>
+  ) : null;
+};
+
 const PersonNumber = ({ person }) => {
   return (
     <div>
@@ -69,6 +85,7 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [currentFilter, setCurrentFilter] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     myApi.getAll().then((persons) => {
@@ -79,32 +96,34 @@ const App = () => {
 
   const updatePerson = (existingPerson) => {
     const updatedInformation = { ...existingPerson, number: newNumber };
-    myApi
-      .update(existingPerson.id, updatedInformation)
-      .then(() => {
-        const newPersons = persons.map((personOnList) =>
-          existingPerson.number === personOnList.number
-            ? { ...personOnList, number: newNumber }
-            : personOnList
-        );
-        finalizePersonsChange(newPersons);
-      });
-    };
-    
-    const finalizePersonsChange = (newPersons) => {
-      setPersons(newPersons);
-      setShownPersons(filterPersons(newPersons, currentFilter));
-      setNewName("");
-      setNewNumber("");
-    };
-    
-    const createPerson = () => {
-    const newPerson = { 'name': newName, 'number': newNumber}
+    myApi.update(existingPerson.id, updatedInformation).then(() => {
+      const newPersons = persons.map((personOnList) =>
+        existingPerson.number === personOnList.number
+          ? { ...personOnList, number: newNumber }
+          : personOnList
+      );
+      finalizePersonsChange(newPersons);
+    });
+  };
+
+  const finalizePersonsChange = (newPersons) => {
+    setPersons(newPersons);
+    setShownPersons(filterPersons(newPersons, currentFilter));
+    setNewName("");
+    setNewNumber("");
+  };
+
+  const createPerson = () => {
+    const newPerson = { name: newName, number: newNumber };
     myApi
       .create(newPerson)
       .then((addedPerson) => {
-        const newPersons = persons.concat(addedPerson)
+        const newPersons = persons.concat(addedPerson);
         finalizePersonsChange(newPersons);
+      })
+      .catch((error) => {
+        console.log(error.response.data);
+        setErrorMessage(error.response.data.error);
       });
   };
 
@@ -154,6 +173,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <ErrorDisplay errorMessage={errorMessage}></ErrorDisplay>
       <Filter handleChange={filterValueChange}></Filter>
       <h3>Add a new</h3>
       <PersonForm
