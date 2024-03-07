@@ -79,7 +79,6 @@ const App = () => {
 
   const updatePerson = (existingPerson) => {
     const updatedInformation = { ...existingPerson, number: newNumber };
-    console.log('newPersonInformationToUpdate', updatedInformation)
     myApi
       .update(existingPerson.id, updatedInformation)
       .then(() => {
@@ -88,7 +87,6 @@ const App = () => {
             ? { ...personOnList, number: newNumber }
             : personOnList
         );
-        console.log("en:", existingPerson.number)
         finalizePersonsChange(newPersons);
       });
     };
